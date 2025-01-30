@@ -4,13 +4,14 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@prisma/client": "6.3.0",
     "dotenv": "^16.4.7",
-    "nocodb-sdk": "^0.260.2",
+    "prisma": "^6.3.0",
     "slack-edge": "^1.3.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   },
   "scripts": {
-    "start": "deno run --allow-net --allow-read --allow-env src/index.ts"
+    "start": "deno run --allow-net --allow-read --allow-env --allow-run src/index.ts"
   }
 }

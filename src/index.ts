@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { AnyBlockElement, AnyHomeTabBlock, SlackApp } from "slack-edge";
-import { Api } from "nocodb-sdk";
+//@ts-ignore it does infact; shut up deno
+import * as  PrismaClient  from "@prisma/client";
 import { genMainView } from "./views.ts";
 import { ads } from "./ads.ts";
 interface OmgMoment {
@@ -18,21 +19,19 @@ const slackApp = new SlackApp({
 	},
 	startLazyListenerAfterAck: true,
 });
+// console.log(PrismaClient)
+const db = new PrismaClient.default.PrismaClient()
+db.$connect()
 // hehehehehhehehehehrebgfebhjrbhjuehjfr 
 export let ad_of_the_min = ads[Math.floor(Math.random() * ads.length)]
 const client = slackApp.client
-const db = new Api({
-    baseURL: "https://nocodb.saahild.com",
-    headers: {
-      "xc-token":process.env.DB_TOKEN
-    }
-})
 slackApp.event('app_home_opened', async ({ body, context }) => {
     // const { user } = body;
     // let is_logged_in = false
-    const userEntry = await db.dbViewRow.findOne("noco", "pogq5o3wq26k67c", "mm73ua4qgwa3wxa", "vwfx9pwsd41uanvh",   {
-        fields: ["slackID", "pr_link", "hours_recorded_on_slack", "juicedata"],
-        where: `(slackID,eq,${body.event.user})`,
+    const userEntry = await db.user.findFirst({
+       where: {
+           slackId: body.event.user
+       }
       })
     //   console.log(userEntry, `DO I EXIST?`)
 
@@ -50,7 +49,7 @@ slackApp.action(`login_token`, async ({ body, context }) => {
 
     const userId = body.user.id 
     const token = body.actions[0].value
-    console.log(token, userId)
+    // console.log(token, userId)
     // send a view publish update with the new stuff
     // await client.users. 
     const userData =  await fetch("https://juice.hackclub.com/api/user", {
@@ -67,22 +66,30 @@ slackApp.action(`login_token`, async ({ body, context }) => {
         // // "juice-userdatum": 1,
         // "juicedata":userData ?? {"e":1} 
     // })
-    await db.dbViewRow.create("noco",
-        "pogq5o3wq26k67c",
-        "mm73ua4qgwa3wxa",
-        "vwfx9pwsd41uanvh", {
-        "slackID":  body.user.id,
+    console.log(userData)
+    await db.user.create({
+        data: {
+            slackId:  body.user.id,
+            juice_token: userData.token,
+            juice_joined_at: new Date(userData.created_at),
+            juice_email: userData.email,
+            // use prisma decimal
+            juice_hours: new PrismaClient.default.Prisma.Decimal(userData.totalStretchHours),
+            juice_kudos: parseInt(userData.totalKudos),
+            juice_achievements: userData.achievements
+        }
         // // juicedata: 1
         // // create link to another table row
         // // "juice-userdatum": 1,
-        juicedata:userData
+   
         // ||  userData ?? {"e":1} 
     }).then(console.log)
     // update app home
-    const userEntry = await db.dbViewRow.findOne("noco", "pogq5o3wq26k67c", "mm73ua4qgwa3wxa", "vwfx9pwsd41uanvh",   {
-        fields: ["slackID", "pr_link", "hours_recorded_on_slack", "juicedata"],
-        where: `(slackID,eq,${body.user.id})`,
-      })
+    const userEntry = await db.user.findFirst({
+        where: {
+            slackId: body.user.id
+        }
+       })
     await client.views.publish({
         user_id: body.user.id,
         view: {
@@ -97,28 +104,48 @@ slackApp.action(`submit_pr_link`, async ({ body, context }) => {
     // console.log(body)
     const pr_link = body.actions[0].value
     if(!pr_link) return;
+    const userEntry = await db.user.findFirst({
+        where: {
+            slackId: body.user.id
+        }
+       })
     const userId = body.user.id
-    const ID = await db.dbViewRow.findOne("noco", "pogq5o3wq26k67c", "mm73ua4qgwa3wxa", "vwfx9pwsd41uanvh",   {
-        fields: ["Id"],
-        where: `(slackID,eq,${userId})`,
-      }).then(r=>r.Id)
-      
-    console.log(ID, pr_link)
-    await db.dbTableRow.update(
-        "noco",          // Project name
-        "pogq5o3wq26k67c",  // Table ID
-        "mm73ua4qgwa3wxa",  // View ID (pass `null` if not using views)
-        ID,      // Data to update
-        { pr_link } // Correct `where` filter syntax
-    );
+await db.user.update({
+    where: {
+        slackId: userId
+    },
+    data: {
+        pr_link
+    }
+})
+fetch("https://juice.hackclub.com/api/submit-pr", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        prLink: pr_link,
+        token: userEntry!.juice_token
+    })
+})
+    // // console.log(ID, pr_link)
+    // await db.dbTableRow.update(
+    //     "noco",          // Project name
+    //     "pogq5o3wq26k67c",  // Table ID
+    //     "mm73ua4qgwa3wxa",  // View ID (pass `null` if not using views)
+    //     ID,      // Data to update
+    //     { pr_link } // Correct `where` filter syntax
+    // );
       await client.views.publish({
         user_id: body.user.id,
+
         view: {
             type: 'home',
-            blocks: genMainView(body.user.id, await db.dbViewRow.findOne("noco", "pogq5o3wq26k67c", "mm73ua4qgwa3wxa", "vwfx9pwsd41uanvh",   {
-                fields: ["Id", "pr_link", "slackID", "hours_recorded_on_slack", "juicedata"],
-                where: `(slackID,eq,${userId})`,
-              })),
+            blocks: genMainView(body.user.id, await db.user.findFirst({
+                where: {
+                    slackId: userId
+                }
+               })),
         },
 })
 })
@@ -126,18 +153,29 @@ slackApp.action(`submit_pr_link`, async ({ body, context }) => {
 slackApp.action(`reload_juicedata`, async ({ body, context }) => {
     // console.log(body)
     const userId = body.user.id
-    const userEntry = await db.dbViewRow.findOne("noco", "pogq5o3wq26k67c", "mm73ua4qgwa3wxa", "vwfx9pwsd41uanvh",   {
-        fields: ["Id", "juicedata"],
-        where: `(slackID,eq,${userId})`,
-      })
+    const userEntry = await db.user.findFirst({
+        where: {
+            slackId: userId
+        }
+       })
     //   console.log(userEntry)
-    await db.dbViewRow.update("noco", "pogq5o3wq26k67c", "mm73ua4qgwa3wxa", "vwfx9pwsd41uanvh", userEntry.Id, {
-        juicedata: await fetch("https://juice.hackclub.com/api/user", {
-            headers: {
-                "Authorization": `Zeon ${userEntry.juicedata.token}`
-            }
-        }).then(r=>r.json()).then(r=>r.userData)
-})
+    const userData = await fetch("https://juice.hackclub.com/api/user", {
+        headers: {
+            "Authorization": `Zeon ${userEntry.juicedata.token}`
+        }
+    }).then(r=>r.json()).then(r=>r.userData)
+    await db.user.update({
+        where: {
+            slackId: userId
+        },
+        data: {
+            juice_token: userData.token,
+            juice_joined_at: userData.joined_at,
+            juice_hours: userData.totalStretchHours,
+            juice_kudos: userData.kudos,
+            juice_achievements: userData.achievements
+        }
+    })
 })
 function chunkArray<T>(array: T[], chunkSize: number): T[][] {
     if (chunkSize <= 0) {

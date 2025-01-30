@@ -78,7 +78,7 @@ export const kudos_button = {
 export function genMainView(slackID: string, userEntry: any) {
     console.debug(`#0`, userEntry, slackID)
      //@ts-ignore ts error
-     const is_logged_in = Boolean(userEntry.slackID)
+     const is_logged_in = Boolean(userEntry?.slackId)
      // console.log(body)
      const blocks:AnyHomeTabBlock[] = [		{
          "type": "header",
@@ -96,7 +96,7 @@ export function genMainView(slackID: string, userEntry: any) {
          type: "section",
          text: {
              type: "mrkdwn",
-             text: `Hi <@${userEntry.slackID}>, you currently have ${userEntry.hours_recorded_on_slack} hours on slack (and ${userEntry.juicedata.totalStretchHours} hours in total)`
+             text: `Hi <@${userEntry.slackId}>, you currently have ${userEntry.hours_recorded_on_slack} hours on slack (and ${userEntry.juice_hours} hours in total)`
          }
          //@ts-ignore shut up i cant focus
      }, !userEntry.pr_link ?  {
@@ -111,7 +111,52 @@ export function genMainView(slackID: string, userEntry: any) {
              "text": "PR Link",
              "emoji": true
          }
-     } : null].filter(Boolean): login_blocks),
+     } : null, {
+        "type": "header",
+        "text": {
+            "type": "plain_text",
+            "text": "Juicer",
+            "emoji": true
+        }
+    },
+    {
+        "type": "divider"
+    },
+    {
+        "type": "actions",
+        "elements": [
+            {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": ":arrow_forward:",
+                    "emoji": true
+                },
+                "value": "start-juice-moment",
+                "action_id": "juice-start"
+            },
+            {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": ":double_vertical_bar:",
+                    "emoji": true
+                },
+                "value": "pause-juice-moment",
+                "action_id": "juice-pause"
+            },
+            {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": ":stop:",
+                    "emoji": true
+                },
+                "value": "stop-juice-moment",
+                "action_id": "juice-stop"
+            }
+        ]
+    }].filter(Boolean): login_blocks),
              //@ts-ignore shut up i cant focus
  
      {

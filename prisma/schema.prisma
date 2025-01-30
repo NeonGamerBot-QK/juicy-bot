@@ -1,0 +1,24 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+slackId String @id
+session_started Boolean @default(false)
+pr_link String?
+hours_recorded_on_slack Decimal? @default(0.0)
+juice_email String
+juice_token String @unique
+juice_joined_at DateTime
+juice_hours Decimal?
+juice_kudos Int?
+juice_achievements Json
+}
