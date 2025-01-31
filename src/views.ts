@@ -1,5 +1,5 @@
 import { AnyHomeTabBlock } from "slack-edge";
-import { ad_of_the_min } from "./index.ts";
+import { ad_of_the_min, UserStatus } from "./index.ts";
 
 export const login_blocks = [
     {
@@ -116,12 +116,25 @@ export function genMainView(slackID: string, userEntry: any) {
         "text": {
             "type": "plain_text",
             "text": "Juicer",
-            "emoji": true
+            "emoji": true 
         }
     },
     {
         "type": "divider"
     },
+    userEntry.session_status === UserStatus.ACTIVE ? {
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": `You are currently running a :juice: session!`
+        }
+    } :  userEntry.session_status === UserStatus.PAUSED ? {
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": `You are currently paused a :juice: session!`
+        }
+    } : null,
     {
         "type": "actions",
         "elements": [

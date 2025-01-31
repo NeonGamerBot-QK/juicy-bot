@@ -9,10 +9,15 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
-
+enum UserStatus {
+  ACTIVE
+  PAUSED
+  STOPPED
+}
 model User {
 slackId String @id
-session_started Boolean @default(false)
+session_started String? 
+session_status UserStatus? @default(STOPPED)
 pr_link String?
 hours_recorded_on_slack Decimal? @default(0.0)
 juice_email String
@@ -21,4 +26,5 @@ juice_joined_at DateTime
 juice_hours Decimal?
 juice_kudos Int?
 juice_achievements Json
+juice_gamePr String?
 }

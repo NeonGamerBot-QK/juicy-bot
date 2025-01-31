@@ -4,12 +4,18 @@ import { AnyBlockElement, AnyHomeTabBlock, SlackApp } from "slack-edge";
 import * as  PrismaClient  from "@prisma/client";
 import { genMainView } from "./views.ts";
 import { ads } from "./ads.ts";
+import { cronJob } from "./lb.ts";
 interface OmgMoment {
     id: string;
     description: string;
     video:string;
     created_at: string;
     kudos: number;
+}
+export const UserStatus = {
+    ACTIVE: "ACTIVE",
+    PAUSED: "PAUSED",    
+    STOPPED: "STOPPED"
 }
 const slackApp = new SlackApp({
 	env: {
@@ -81,7 +87,6 @@ slackApp.action(`login_token`, async ({ body, context }) => {
         // // juicedata: 1
         // // create link to another table row
         // // "juice-userdatum": 1,
-   
         // ||  userData ?? {"e":1} 
     }).then(console.log)
     // update app home
@@ -264,6 +269,130 @@ return         [{
             }
             })
 })
+slackApp.action(`juice-start`, async ({ body, context }) => {
+    console.debug(`#juicemoment0`)
+    const userId = body.user.id
+    const userEntry = await db.user.findFirst({
+        where: {
+            slackId: userId
+        }
+       })
+    if(!userEntry) return;
+    if(userEntry.session_started) return;
+    // send an api req saying im running that session fr
+  const stretchId = await  fetch("https://juice.hackclub.com/api/start-juice-stretch", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            // "Authorization": `Zeon ${userEntry.juice_token}`
+        },
+        body: JSON.stringify({
+            token: userEntry.juice_token,
+    })
+    }).then(r=>r.json()).then(r=>r.stretchId)
+    await db.user.update({
+        where: {
+            slackId: userId
+        },
+        data: {
+            session_started: stretchId,
+            //@ts-ignore types broken
+            session_status: UserStatus.ACTIVE,
+        }
+    })
+})
+
+slackApp.action(`juice-pause`, async ({ body, context }) => {
+    console.debug(`#juicemoment1`)
+    const userId = body.user.id
+    const userEntry = await db.user.findFirst({
+        where: {
+            slackId: userId
+        }
+       })
+    if(!userEntry) return;
+    if(!userEntry.session_started) return;
+    // pause the stretch
+    await fetch("https://juice.hackclub.com/api/pause-juice-stretch", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            // "Authorization": `Zeon ${userEntry.juice_token}`
+        },
+        body: JSON.stringify({
+            token: userEntry.juice_token,
+            stretchId: userEntry.session_started
+        })
+        })
+await db.user.update({
+    where: {
+        slackId: userId
+    },
+    data: {
+        // change to paused
+        //@ts-ignore uh idk not picking up types
+        session_status: UserStatus.PAUSED
+    }
+})
+        // TODO: at end of each action (juice-*) re render
+        await client.views.publish({
+            user_id: body.user.id,
+            view: {
+                type: 'home',
+                blocks: genMainView(body.user.id, await db.user.findFirst({
+                    where: {
+                        slackId: userId
+                    }
+                   })),
+            },  
+            // view_id: body.view.id,
+        })
+})
+slackApp.action(`juice-stop`, async ({ body, context }) => {
+    console.debug(`#juicemoment2`)
+    const userEntry = await db.user.findFirst({
+        where: {
+            slackId: body.user.id
+        }
+       })
+    if(!userEntry) return;
+    if(!userEntry.session_started) return;
+    // stop the stretch
+    await fetch("https://juice.hackclub.com/api/stop-juice-stretch", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            // "Authorization": `Zeon ${userEntry.juice_token}`
+        },
+        body: JSON.stringify({
+            token: userEntry.juice_token,
+            stretchId: userEntry.session_started
+        })
+    })
+    await db.user.update({
+        where: {
+            slackId: body.user.id
+        },
+        data: {
+            // change to stopped
+            //@ts-ignore uh idk not picking up types
+            session_status: UserStatus.STOPPED,
+            //@ts-ignore WHEN WILL THE TYPES UPDATE
+            session_started: null
+        }
+    })
+    await client.views.publish({
+        user_id: body.user.id,
+        view: {
+            type: 'home',
+            blocks: genMainView(body.user.id, await db.user.findFirst({
+                where: {
+                    slackId: body.user.id
+                }
+               })),
+        },  
+    })
+})
 setInterval(() => {
     ad_of_the_min = ads[Math.floor(Math.random() * ads.length)]
 }, 1000 * 60)
@@ -272,3 +401,4 @@ Deno.serve({ port: Deno.env.get("PORT") || 0} ,async (req) => {
     console.log(`${req.method}: ${req.url}`)
  return   await slackApp.run(req);
 })
+cronJob(slackApp, db)
