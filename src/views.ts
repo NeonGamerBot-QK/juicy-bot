@@ -2,36 +2,36 @@ import { AnyHomeTabBlock } from "slack-edge";
 import { ad_of_the_min, UserStatus } from "./index.ts";
 
 export const login_blocks = [
-    {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": "*Please give me ur token so i can login*"
-        }
+  {
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: "*Please give me ur token so i can login*",
     },
-    {
-        "dispatch_action": true,
-        "type": "input",
-        "element": {
-            "type": "plain_text_input",
-            "action_id": "login_token"
-        },
-        "label": {
-            "type": "plain_text",
-            "text": "Token",
-            "emoji": true
-        }
+  },
+  {
+    dispatch_action: true,
+    type: "input",
+    element: {
+      type: "plain_text_input",
+      action_id: "login_token",
     },
-    {
-        "type": "context",
-        "elements": [
-            {
-                "type": "mrkdwn",
-                "text": "You can get the token via the file you downloaded or from `localStorage.token`"
-            }
-        ]
-    }
-]
+    label: {
+      type: "plain_text",
+      text: "Token",
+      emoji: true,
+    },
+  },
+  {
+    type: "context",
+    elements: [
+      {
+        type: "mrkdwn",
+        text: "You can get the token via the file you downloaded or from `localStorage.token`",
+      },
+    ],
+  },
+];
 export const juice_in_emojis = `:blank::blank::blank::blank::blank::blank::blank::040301::030200::blank::blank::blank::blank::blank::blank::blank::blank::blank::blank::blank:
 :blank::blank::blank::blank::blank::blank::040301::070401::100704::090704::030201::blank::blank::blank::blank::blank::blank::blank::blank::blank:
 :blank::blank::blank::blank::blank::blank::blank::blank::blank::080603::060402::blank::blank::blank::blank::blank::blank::blank::blank::blank:
@@ -51,157 +51,169 @@ export const juice_in_emojis = `:blank::blank::blank::blank::blank::blank::blank
 :blank::blank::blank::040507::030404::050402::050302::030603::030603::030302::050403::030503::030503::030603::030704::blank::blank::blank::blank::blank:
 :blank::blank::010203::050406::040505::030503::020402::030603::030603::030603::030603::030603::030603::030604::010302::blank::blank::blank::blank::blank:
 :blank::blank::030201::030200::020100::020201::020503::030603::030603::030603::030603::020503::010201::blank::blank::blank::blank::blank::blank::blank:
-:blank::blank::blank::blank::blank::blank::blank::020302::020402::010302::blank::blank::blank::blank::blank::blank::blank::blank::blank::blank:`
-export const juice_img =     {
-    "type": "section",
-    "text": {
-        text:  juice_in_emojis.slice(0,3000)!,
-        type: "mrkdwn",
-        // emoji: true
-    }
-}
+:blank::blank::blank::blank::blank::blank::blank::020302::020402::010302::blank::blank::blank::blank::blank::blank::blank::blank::blank::blank:`;
+export const juice_img = {
+  type: "section",
+  text: {
+    text: juice_in_emojis.slice(0, 3000)!,
+    type: "mrkdwn",
+    // emoji: true
+  },
+};
 export const kudos_button = {
-    "type": "actions",
-    "elements": [
-        {
-            "type": "button",
-            "text": {
-                "type": "plain_text",
-                "text": ":juice-kudos:",
-                "emoji": true
-            },
-            "value": "kudos-menu-0",
-            "action_id": "kudos-menu"
-        }
-    ]
-}
+  type: "actions",
+  elements: [
+    {
+      type: "button",
+      text: {
+        type: "plain_text",
+        text: ":juice-kudos:",
+        emoji: true,
+      },
+      value: "kudos-menu-0",
+      action_id: "kudos-menu",
+    },
+  ],
+};
 export function genMainView(slackID: string, userEntry: any) {
-    console.debug(`#0`, userEntry, slackID)
-     //@ts-ignore ts error
-     const is_logged_in = Boolean(userEntry?.slackId)
-     // console.log(body)
-     const blocks:AnyHomeTabBlock[] = [		{
-         "type": "header",
-         "text": {
-             "type": "plain_text",
-             "text": ":juice:",
-             "emoji": true
-         }
-     },
-     {
-         "type": "divider"
-     },
-     //@ts-ignore shush
-     ...(is_logged_in ? [{
-         type: "section",
-         text: {
-             type: "mrkdwn",
-             text: `Hi <@${userEntry.slackId}>, you currently have ${userEntry.hours_recorded_on_slack} hours on slack (and ${userEntry.juice_hours} hours in total)`
-         }
-         //@ts-ignore shut up i cant focus
-     }, !userEntry.pr_link ?  {
-         "dispatch_action": true,
-         "type": "input",
-         "element": {
-             "type": "plain_text_input",
-             "action_id": "submit_pr_link"
-         },
-         "label": {
-             "type": "plain_text",
-             "text": "PR Link",
-             "emoji": true
-         }
-     } : null, {
-        "type": "header",
-        "text": {
-            "type": "plain_text",
-            "text": "Juicer",
-            "emoji": true 
-        }
+  console.debug(`#0`, userEntry, slackID);
+  //@ts-ignore ts error
+  const is_logged_in = Boolean(userEntry?.slackId);
+  // console.log(body)
+  const blocks: AnyHomeTabBlock[] = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: ":juice:",
+        emoji: true,
+      },
     },
     {
-        "type": "divider"
+      type: "divider",
     },
-    userEntry.session_status === UserStatus.ACTIVE ? {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": `You are currently running a :juice: session!`
-        }
-    } :  userEntry.session_status === UserStatus.PAUSED ? {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": `You are currently paused a :juice: session!`
-        }
-    } : null,
-    {
-        "type": "actions",
-        "elements": [
-            {
-                "type": "button",
-                "text": {
-                    "type": "plain_text",
-                    "text": ":arrow_forward:",
-                    "emoji": true
-                },
-                "value": "start-juice-moment",
-                "action_id": "juice-start"
+    //@ts-ignore shush
+    ...(is_logged_in
+      ? [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `Hi <@${userEntry.slackId}>, you currently have ${userEntry.hours_recorded_on_slack} hours on slack (and ${userEntry.juice_hours} hours in total)`,
             },
-            {
-                "type": "button",
-                "text": {
-                    "type": "plain_text",
-                    "text": ":double_vertical_bar:",
-                    "emoji": true
+            //@ts-ignore shut up i cant focus
+          },
+          !userEntry.pr_link
+            ? {
+                dispatch_action: true,
+                type: "input",
+                element: {
+                  type: "plain_text_input",
+                  action_id: "submit_pr_link",
                 },
-                "value": "pause-juice-moment",
-                "action_id": "juice-pause"
+                label: {
+                  type: "plain_text",
+                  text: "PR Link",
+                  emoji: true,
+                },
+              }
+            : null,
+          {
+            type: "header",
+            text: {
+              type: "plain_text",
+              text: "Juicer",
+              emoji: true,
             },
-            {
-                "type": "button",
-                "text": {
-                    "type": "plain_text",
-                    "text": ":x:",
-                    "emoji": true
+          },
+          {
+            type: "divider",
+          },
+          userEntry.session_status === UserStatus.ACTIVE
+            ? {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: `You are currently running a :juice: session!`,
                 },
-                "value": "stop-juice-moment",
-                "action_id": "juice-stop"
-            },
-            {
-                "type": "button",
-                "text": {
-                    "type": "plain_text",
-                    "text": "End time and upload video :3",
-                    "emoji": true
+              }
+            : userEntry.session_status === UserStatus.PAUSED
+              ? {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: `You are currently paused a :juice: session!`,
+                  },
+                }
+              : null,
+          {
+            type: "actions",
+            elements: [
+              {
+                type: "button",
+                text: {
+                  type: "plain_text",
+                  text: ":arrow_forward:",
+                  emoji: true,
                 },
-                "value": "stop-juice-moment",
-                "action_id": "juice-stop-record"
-            }
-        ]
-    }].filter(Boolean): login_blocks),
-             //@ts-ignore shut up i cant focus
+                value: "start-juice-moment",
+                action_id: "juice-start",
+              },
+              {
+                type: "button",
+                text: {
+                  type: "plain_text",
+                  text: ":double_vertical_bar:",
+                  emoji: true,
+                },
+                value: "pause-juice-moment",
+                action_id: "juice-pause",
+              },
+              {
+                type: "button",
+                text: {
+                  type: "plain_text",
+                  text: ":x:",
+                  emoji: true,
+                },
+                value: "stop-juice-moment",
+                action_id: "juice-stop",
+              },
+              {
+                type: "button",
+                text: {
+                  type: "plain_text",
+                  text: "End time and upload video :3",
+                  emoji: true,
+                },
+                value: "stop-juice-moment",
+                action_id: "juice-stop-record",
+              },
+            ],
+          },
+        ].filter(Boolean)
+      : login_blocks),
+    //@ts-ignore shut up i cant focus
 
-     {
-         "type": "divider"
-     },
-             //@ts-ignore shut up i cant focus
- 
-     kudos_button,
-             //@ts-ignore shut up i cant focus
- 
-     {
-        
-         "type": "divider"
-     },
-             //@ts-ignore shut up i cant focus
- {
-     type: "section",
-     text: {
-         type: "mrkdwn",
-         text: `*AD:* ${ad_of_the_min}`
-     }
- }
- ]
- return blocks;
+    {
+      type: "divider",
+    },
+    //@ts-ignore shut up i cant focus
+
+    kudos_button,
+    //@ts-ignore shut up i cant focus
+
+    {
+      type: "divider",
+    },
+    //@ts-ignore shut up i cant focus
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `*AD:* ${ad_of_the_min}`,
+      },
+    },
+  ];
+  return blocks;
 }
