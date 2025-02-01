@@ -162,16 +162,26 @@ export function genMainView(slackID: string, userEntry: any) {
                 "type": "button",
                 "text": {
                     "type": "plain_text",
-                    "text": ":stop:",
+                    "text": ":x:",
                     "emoji": true
                 },
                 "value": "stop-juice-moment",
                 "action_id": "juice-stop"
+            },
+            {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "End time and upload video :3",
+                    "emoji": true
+                },
+                "value": "stop-juice-moment",
+                "action_id": "juice-stop-record"
             }
         ]
     }].filter(Boolean): login_blocks),
              //@ts-ignore shut up i cant focus
- 
+
      {
          "type": "divider"
      },
