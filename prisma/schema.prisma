@@ -27,4 +27,8 @@ juice_hours Decimal?
 juice_kudos Int?
 juice_achievements Json
 juice_gamePr String?
+jungle_stretches Json?
+jungle_hours Decimal @default(0.0)
+totalTokens Decimal? @default(0.0)
+slack_handle String
 }

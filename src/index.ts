@@ -93,10 +93,19 @@ slackApp.action(`login_token`, async ({ body, context }) => {
         juice_email: userData.email,
         // use prisma decimal
         juice_hours: new PrismaClient.default.Prisma.Decimal(
-          userData.totalStretchHours,
+          userData.totalJuiceHours,
         ),
         juice_kudos: parseInt(userData.totalKudos),
         juice_achievements: userData.achievements,
+        //@ts-ignore idk the erro
+        jungle_hours: new PrismaClient.default.Prisma.Decimal(
+          userData.totalJungleHours,
+        ),
+        jungle_stretches: userData.jungleStretches,
+        totalTokens: new PrismaClient.default.Prisma.Decimal(
+          userData.totalTokens,
+        ),
+          slack_handle: userData["Slack Handle (from Slack)"]![0],
       },
       // // juicedata: 1
       // // create link to another table row
@@ -194,7 +203,7 @@ slackApp.action(`submit_pr_link`, async ({ body, context }) => {
 //         data: {
 //             juice_token: userData.token,
 //             juice_joined_at: userData.joined_at,
-//             juice_hours: userData.totalStretchHours,
+//             juice_hours: userData.totalJuiceHours,
 //             juice_kudos: userData.kudos,
 //             juice_achievements: userData.achievements
 //         }
@@ -226,6 +235,7 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
   })
     .then((r) => r.json())
     .then((r) => r.userData);
+    const userData = newData;
   await db.user.update({
     where: {
       slackId: id,
@@ -237,10 +247,18 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
       juice_email: newData.email,
       // use prisma decimal
       juice_hours: new PrismaClient.default.Prisma.Decimal(
-        newData.totalStretchHours,
+        newData.totalJuiceHours,
       ),
       juice_kudos: parseInt(newData.totalKudos),
       juice_achievements: newData.achievements,
+      jungle_hours: new PrismaClient.default.Prisma.Decimal(
+        userData.totalJungleHours,
+      ),
+      jungle_stretches: userData.jungleStretches,
+      totalTokens: new PrismaClient.default.Prisma.Decimal(
+        userData.totalTokens,
+      ),
+        slack_handle: userData["Slack Handle (from Slack)"]![0],
     },
   });
 }

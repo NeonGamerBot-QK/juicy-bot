@@ -73,6 +73,16 @@ export const kudos_button = {
       value: "kudos-menu-0",
       action_id: "kudos-menu",
     },
+    {
+      type: "button",
+      text: {
+        type: "plain_text",
+        text: ":jungle:",
+        emoji: true,
+      },
+      value: "jungle-menu-0",
+      action_id: "jungle-menu",
+    }
   ],
 };
 export function genMainView(slackID: string, userEntry: any) {
