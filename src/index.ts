@@ -5,6 +5,7 @@ import * as PrismaClient from "@prisma/client";
 import { genMainView } from "./views.ts";
 import { ads } from "./ads.ts";
 import { cronJob } from "./lb.ts";
+import { exec } from "node:child_process";
 interface OmgMoment {
   id: string;
   description: string;
@@ -67,7 +68,7 @@ slackApp.action(`login_token`, async ({ body, context }) => {
   // console.log(token, userId)
   // send a view publish update with the new stuff
   // await client.users.
-  const userData = await fetch("https://juice.hackclub.com/api/user", {
+  const userData = await fetch("https://sww48o88cs88sg8k84g4s4kg.a.selfhosted.hackclub.com/api/user", {
     headers: {
       Authorization: `Zeon ${token}`,
     },
@@ -191,7 +192,7 @@ slackApp.action(`submit_pr_link`, async ({ body, context }) => {
 //         }
 //        })
 //     //   console.log(userEntry)
-//     const userData = await fetch("https://juice.hackclub.com/api/user", {
+//     const userData = await fetch("https://sww48o88cs88sg8k84g4s4kg.a.selfhosted.hackclub.com/api/user", {
 //         headers: {
 //             "Authorization": `Zeon ${userEntry.juicedata.token}`
 //         }
@@ -228,7 +229,7 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
     },
   });
   if (!currentData) return;
-  const newData = await fetch("https://juice.hackclub.com/api/user", {
+  const newData = await fetch("https://sww48o88cs88sg8k84g4s4kg.a.selfhosted.hackclub.com/api/user", {
     headers: {
       Authorization: `Zeon ${currentData.juice_token}`,
     },
@@ -241,7 +242,8 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
       slackId: id,
     },
     data: {
-      juice_gamePr: newData.gamePr,
+      juice_gamePr: newData.game_pr,
+      pr_link: newData.game_pr,
       juice_token: newData.token,
       juice_joined_at: new Date(newData.created_at),
       juice_email: newData.email,
@@ -606,6 +608,7 @@ slackApp.action(`juice-stop`, async ({ body, context }) => {
       session_started: null,
     },
   });
+  
   await client.views.publish({
     user_id: body.user.id,
     view: {
@@ -623,10 +626,26 @@ slackApp.action(`juice-stop`, async ({ body, context }) => {
 });
 setInterval(() => {
   ad_of_the_min = ads[Math.floor(Math.random() * ads.length)];
-}, 1000 * 60);
 
+}, 1000 * 60);
+setInterval(() => {
+  cronJob(slackApp, db);
+}, 1000 * 60 * 5)
+
+setInterval(() => {
+  exec(`git pull -v`, (error, stdout) => {
+    const response = error || stdout;
+    if (!error) {
+      if (!response.includes("Already up to date.")) {
+       console.log(response);
+        setTimeout(() => {
+          process.exit();
+        }, 1000);
+      }
+    }
+  });
+}, 30000);
 Deno.serve({ port: Deno.env.get("PORT") || 0 }, async (req) => {
   console.log(`${req.method}: ${req.url}`);
   return await slackApp.run(req);
 });
-cronJob(slackApp, db);

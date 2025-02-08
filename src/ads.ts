@@ -6,6 +6,6 @@ export const ads = [
     `Join #charmander-island if you want to see development of a virtual farming game im making, and to see a picture of my cats every single day`,
     `Wanna try your hands at jailbreaking a language model? Join #defensive-llm`,
     `join #skyfalls-airport to see cool stuff being built in public! (slackbots, websites, rust things etc :yay:)`,
-    `Wana see a log of all the kudos? Join #kudos-log`,
+    `Wana see a log of all the kudos? Join #juice-kudos-log`,
     `Wana join an extremly unique _personal channel_ with the one and only zeon? run \`/joinneonschannel\`!`
 ]
