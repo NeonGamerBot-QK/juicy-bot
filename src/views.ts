@@ -82,7 +82,7 @@ export const kudos_button = {
       },
       value: "jungle-menu-0",
       action_id: "jungle-menu",
-    }
+    },
   ],
 };
 export function genMainView(slackID: string, userEntry: any) {
