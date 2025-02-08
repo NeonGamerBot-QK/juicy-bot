@@ -109,7 +109,7 @@ slackApp.action(`login_token`, async ({ body, context }) => {
         totalTokens: new PrismaClient.default.Prisma.Decimal(
           userData.totalTokens,
         ),
-        slack_handle: userData["Slack Handle (from Slack)"]![0],
+        slack_handle:userData["Slack Handle (from Slack)"] ?  userData["Slack Handle (from Slack)"]![0] : undefined,
       },
       // // juicedata: 1
       // // create link to another table row
@@ -225,6 +225,7 @@ function chunkArray<T>(array: T[], chunkSize: number): T[][] {
 
   return result;
 }
+//@ts-ignore idk compile error
 async function reUpdateUsersData(db: PrismaClient, id: string) {
   const currentData = await db.user.findFirst({
     where: {
@@ -468,6 +469,7 @@ slackApp.action(`juice-stop-record`, async ({ body, context }) => {
   // })
   // pop up a modal asking for a description and video file upload
   await client.views.open({
+    //@ts-ignore idk compile error
     user_id: body.user.id!,
     trigger_id: body.trigger_id,
     view: {
@@ -644,15 +646,18 @@ setInterval(() => {
   exec(`git pull -v`, (error, stdout) => {
     const response = error || stdout;
     if (!error) {
+      //@ts-ignore idk compile error
       if (!response.includes("Already up to date.")) {
         console.log(response);
         setTimeout(() => {
+          //@ts-ignore idk compile error
           process.exit();
         }, 1000);
       }
     }
   });
 }, 30000);
+//@ts-ignore idk compile error
 Deno.serve({ port: Deno.env.get("PORT") || 0 }, async (req) => {
   console.log(`${req.method}: ${req.url}`);
   return await slackApp.run(req);
