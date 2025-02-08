@@ -269,7 +269,9 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
       totalTokens: new PrismaClient.default.Prisma.Decimal(
         userData.totalTokens,
       ),
-      slack_handle: userData["Slack Handle (from Slack)"] ? userData["Slack Handle (from Slack)"]![0] : undefined,
+      slack_handle: userData["Slack Handle (from Slack)"]
+        ? userData["Slack Handle (from Slack)"]![0]
+        : undefined,
     },
   });
 }
