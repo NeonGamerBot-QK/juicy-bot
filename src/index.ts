@@ -68,11 +68,14 @@ slackApp.action(`login_token`, async ({ body, context }) => {
   // console.log(token, userId)
   // send a view publish update with the new stuff
   // await client.users.
-  const userData = await fetch("https://sww48o88cs88sg8k84g4s4kg.a.selfhosted.hackclub.com/api/user", {
-    headers: {
-      Authorization: `Zeon ${token}`,
+  const userData = await fetch(
+    "https://sww48o88cs88sg8k84g4s4kg.a.selfhosted.hackclub.com/api/user",
+    {
+      headers: {
+        Authorization: `Zeon ${token}`,
+      },
     },
-  })
+  )
     .then((r) => r.json())
     .then((r) => r.userData);
   // console.log(0, userData)
@@ -106,7 +109,7 @@ slackApp.action(`login_token`, async ({ body, context }) => {
         totalTokens: new PrismaClient.default.Prisma.Decimal(
           userData.totalTokens,
         ),
-          slack_handle: userData["Slack Handle (from Slack)"]![0],
+        slack_handle: userData["Slack Handle (from Slack)"]![0],
       },
       // // juicedata: 1
       // // create link to another table row
@@ -229,14 +232,17 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
     },
   });
   if (!currentData) return;
-  const newData = await fetch("https://sww48o88cs88sg8k84g4s4kg.a.selfhosted.hackclub.com/api/user", {
-    headers: {
-      Authorization: `Zeon ${currentData.juice_token}`,
+  const newData = await fetch(
+    "https://sww48o88cs88sg8k84g4s4kg.a.selfhosted.hackclub.com/api/user",
+    {
+      headers: {
+        Authorization: `Zeon ${currentData.juice_token}`,
+      },
     },
-  })
+  )
     .then((r) => r.json())
     .then((r) => r.userData);
-    const userData = newData;
+  const userData = newData;
   await db.user.update({
     where: {
       slackId: id,
@@ -260,7 +266,7 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
       totalTokens: new PrismaClient.default.Prisma.Decimal(
         userData.totalTokens,
       ),
-        slack_handle: userData["Slack Handle (from Slack)"]![0],
+      slack_handle: userData["Slack Handle (from Slack)"]![0],
     },
   });
 }
@@ -608,7 +614,7 @@ slackApp.action(`juice-stop`, async ({ body, context }) => {
       session_started: null,
     },
   });
-  
+
   await client.views.publish({
     user_id: body.user.id,
     view: {
@@ -626,18 +632,20 @@ slackApp.action(`juice-stop`, async ({ body, context }) => {
 });
 setInterval(() => {
   ad_of_the_min = ads[Math.floor(Math.random() * ads.length)];
-
 }, 1000 * 60);
-setInterval(() => {
-  cronJob(slackApp, db);
-}, 1000 * 60 * 5)
+setInterval(
+  () => {
+    cronJob(slackApp, db);
+  },
+  1000 * 60 * 5,
+);
 
 setInterval(() => {
   exec(`git pull -v`, (error, stdout) => {
     const response = error || stdout;
     if (!error) {
       if (!response.includes("Already up to date.")) {
-       console.log(response);
+        console.log(response);
         setTimeout(() => {
           process.exit();
         }, 1000);
