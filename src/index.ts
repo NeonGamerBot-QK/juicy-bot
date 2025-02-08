@@ -109,7 +109,9 @@ slackApp.action(`login_token`, async ({ body, context }) => {
         totalTokens: new PrismaClient.default.Prisma.Decimal(
           userData.totalTokens,
         ),
-        slack_handle:userData["Slack Handle (from Slack)"] ?  userData["Slack Handle (from Slack)"]![0] : undefined,
+        slack_handle: userData["Slack Handle (from Slack)"]
+          ? userData["Slack Handle (from Slack)"]![0]
+          : undefined,
       },
       // // juicedata: 1
       // // create link to another table row
