@@ -8,7 +8,7 @@ export async function cronJob(app: SlackApp<any>, db: PrismaClient) {
     .slice(0, 10);
   let str = `*Juice LB:*\n`;
   for (const user of users) {
-    str += `- \`${user.slack_handle}\` - \`${user.juice_hours}\` hours\n`;
+    str += `- ${user.slack_handle ? `\`${user.slack_handle}\`` : `<@${user.slackId}>`} - \`${user.juice_hours}\` hours\n`;
   }
   app.client.chat.postMessage({
     channel: `C08BK1ZUU9W`,
