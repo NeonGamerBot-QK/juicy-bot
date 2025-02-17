@@ -3,9 +3,7 @@
     "dev": "deno run --watch src/index.ts",
     "prod": "deno run -A src/index.ts"
   },
-  "unstable": [
-    "cron"
-  ],
+  "unstable": ["cron"],
   "imports": {
     "@std/assert": "jsr:@std/assert@1"
   }
