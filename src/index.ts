@@ -271,6 +271,7 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
       jungle_hours: new PrismaClient.default.Prisma.Decimal(
         userData.totalJungleHours,
       ),
+      
       jungle_stretches: userData.jungleStretches,
       totalTokens: new PrismaClient.default.Prisma.Decimal(
         userData.totalTokens,
@@ -461,7 +462,7 @@ slackApp.action(`juice-gallery`, async ({ body, context }) => {
     },
   });
 });
-
+// Deno.cron(`check for new games`)
 slackApp.action(
   `opt-in-to-playtest-sharing`,
   async ({ body, context, ack }) => {
@@ -482,9 +483,7 @@ slackApp.action(
       },
     });
     // if they have there itchIo game already js send it out lol
-    if(userEntry.itch){
-
-    }
+    // no im to tired
   },
 );
 

@@ -29,6 +29,7 @@ model User {
   juice_kudos               Int?
   juice_achievements        Json
   juice_gamePr              String?
+  juice_itchUrl            String?
   jungle_stretches          Json?
   jungle_hours              Decimal     @default(0.0)
   totalTokens               Decimal?    @default(0.0)
