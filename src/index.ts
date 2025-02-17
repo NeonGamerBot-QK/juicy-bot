@@ -271,7 +271,7 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
       jungle_hours: new PrismaClient.default.Prisma.Decimal(
         userData.totalJungleHours,
       ),
-      
+
       jungle_stretches: userData.jungleStretches,
       totalTokens: new PrismaClient.default.Prisma.Decimal(
         userData.totalTokens,
@@ -762,18 +762,25 @@ slackApp.action(`juice-stop`, async ({ body, context }) => {
     },
   });
 });
-Deno.cron(`update ad`,"* * * * *", () => {
+Deno.cron(`update ad`, "* * * * *", () => {
   ad_of_the_min = ads[Math.floor(Math.random() * ads.length)];
-})
+});
 
-Deno.cron(`update all users data over a span of 30s wait`, "0 */6 * * *", async () => {
-const users = await db.user.findMany({})
-for(const user of users){
-  console.debug(`#update-all-users-data-over-a-span-of-30s-wait`, user.slackId)
-  await reUpdateUsersData(db, user.slackId)
-  await new Promise(r => setTimeout(r, 1000 * 30))
-}
-})
+Deno.cron(
+  `update all users data over a span of 30s wait`,
+  "0 */6 * * *",
+  async () => {
+    const users = await db.user.findMany({});
+    for (const user of users) {
+      console.debug(
+        `#update-all-users-data-over-a-span-of-30s-wait`,
+        user.slackId,
+      );
+      await reUpdateUsersData(db, user.slackId);
+      await new Promise((r) => setTimeout(r, 1000 * 30));
+    }
+  },
+);
 // setInterval(() => {
 //   ad_of_the_min = ads[Math.floor(Math.random() * ads.length)];
 // }, 1000 * 60);
@@ -783,7 +790,7 @@ for(const user of users){
 //   },
 //   1000 * 60 * 5,
 // );
-Deno.cron(`update lb`,"*/5 * * * *", () => {
+Deno.cron(`update lb`, "*/5 * * * *", () => {
   cronJob(slackApp, db);
 });
 
