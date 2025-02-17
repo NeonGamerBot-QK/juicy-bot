@@ -17,28 +17,28 @@ enum UserStatus {
 }
 
 model User {
-  slackId                 String      @id
-  session_started         String?
-  session_status          UserStatus? @default(STOPPED)
-  pr_link                 String?
-  hours_recorded_on_slack Decimal?    @default(0.0)
-  juice_email             String
-  juice_token             String      @unique
-  juice_joined_at         DateTime
-  juice_hours             Decimal?
-  juice_kudos             Int?
-  juice_achievements      Json
-  juice_gamePr            String?
-  jungle_stretches        Json?
-  jungle_hours            Decimal     @default(0.0)
-  totalTokens             Decimal?    @default(0.0)
-  slack_handle            String?
-  opt_in_to_playTestSharing Boolean @default(false)
-  playtest_notifications  Boolean @default(false)
+  slackId                   String      @id
+  session_started           String?
+  session_status            UserStatus? @default(STOPPED)
+  pr_link                   String?
+  hours_recorded_on_slack   Decimal?    @default(0.0)
+  juice_email               String
+  juice_token               String      @unique
+  juice_joined_at           DateTime
+  juice_hours               Decimal?
+  juice_kudos               Int?
+  juice_achievements        Json
+  juice_gamePr              String?
+  jungle_stretches          Json?
+  jungle_hours              Decimal     @default(0.0)
+  totalTokens               Decimal?    @default(0.0)
+  slack_handle              String?
+  opt_in_to_playTestSharing Boolean     @default(false)
+  playtest_notifications    Boolean     @default(false)
 }
 
 model AlreadySentOut {
-  id String @id 
+  id     String   @id
   userId String
   sentAt DateTime @default(now())
 }
