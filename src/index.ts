@@ -372,8 +372,9 @@ slackApp.action(`kudos-menu`, async ({ body, context }) => {
 slackApp.action(`juice-gallery`, async ({ body, context }) => {
   const value = body.actions[0].value;
   const startIndex = Number(value.split("-")[2]) * 20;
-  let data = await fetch("https://juice.hackclub.com/api/get-gallery")
-    .then((r) => r.json()) as GalleryEntry[];
+  let data = (await fetch("https://juice.hackclub.com/api/get-gallery").then(
+    (r) => r.json(),
+  )) as GalleryEntry[];
   const isLastPage = startIndex + 20 > data.length;
   const endIndex = isLastPage ? data.length : startIndex + 20;
   const isFirstPage = startIndex === 0;
@@ -432,16 +433,23 @@ slackApp.action(`juice-gallery`, async ({ body, context }) => {
             return [
               {
                 type: "section",
-                fields: dd.map((d:GalleryEntry) => {
-                  return [d.thumbnail ? {
-                    type: "image",
-                    image_url: d.thumbnail,
-                    alt_text: "Thumbnail of game: "+d.gamename
-                  } : undefined,{
-                    type: "mrkdwn",
-                    text: `*${d.gamename}*\n> <${d.itchurl}|Play Game>\n> Playable on: ${d.platforms.map(e=>`:${e.toLowerCase()}:`).join(" ")}`,
-                  }].filter(Boolean);
-                }).flat(),
+                fields: dd
+                  .map((d: GalleryEntry) => {
+                    return [
+                      d.thumbnail
+                        ? {
+                            type: "image",
+                            image_url: d.thumbnail,
+                            alt_text: "Thumbnail of game: " + d.gamename,
+                          }
+                        : undefined,
+                      {
+                        type: "mrkdwn",
+                        text: `*${d.gamename}*\n> <${d.itchurl}|Play Game>\n> Playable on: ${d.platforms.map((e) => `:${e.toLowerCase()}:`).join(" ")}`,
+                      },
+                    ].filter(Boolean);
+                  })
+                  .flat(),
               },
               {
                 type: "divider",
@@ -454,26 +462,27 @@ slackApp.action(`juice-gallery`, async ({ body, context }) => {
   });
 });
 
-
-slackApp.action(`opt-in-to-playtest-sharing`, async ({ body, context, ack }) => {
- if(ack) ack();
-  const userId = body.user.id;
-  const userEntry = await db.user.findFirst({
-    where: {
-      slackId: userId,
-    },
-  });
-  if (!userEntry) return;
-  await db.user.update({
-    where: {
-      slackId: userId,
-    },
-    data: {
-      opt_in_to_playTestSharing: true,
-    },
-  });
-
-})
+slackApp.action(
+  `opt-in-to-playtest-sharing`,
+  async ({ body, context, ack }) => {
+    if (ack) ack();
+    const userId = body.user.id;
+    const userEntry = await db.user.findFirst({
+      where: {
+        slackId: userId,
+      },
+    });
+    if (!userEntry) return;
+    await db.user.update({
+      where: {
+        slackId: userId,
+      },
+      data: {
+        opt_in_to_playTestSharing: true,
+      },
+    });
+  },
+);
 
 slackApp.action(`juice-start`, async ({ body, context }) => {
   console.debug(`#juicemoment0`);
@@ -584,7 +593,7 @@ slackApp.action(`juice-stop-record`, async ({ body, context }) => {
   //         token: userEntry.juice_token,
   //         stretchId: userEntry.session_started
   //     })
-  // }) 
+  // })
   // pop up a modal asking for a description and video file upload
   await client.views.open({
     //@ts-ignore idk compile error
@@ -735,7 +744,6 @@ slackApp.action(`juice-stop`, async ({ body, context }) => {
     },
   });
 
-  
   await client.views.publish({
     user_id: body.user.id,
     view: {
@@ -770,7 +778,7 @@ setInterval(() => {
         console.log(response);
         setTimeout(() => {
           //@ts-ignore idk compile error
-         Deno.exit(0)
+          Deno.exit(0);
         }, 1000);
       }
     }
