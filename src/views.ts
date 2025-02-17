@@ -213,14 +213,19 @@ export function genMainView(slackID: string, userEntry: any) {
           },
           userEntry.opt_in_to_playTestSharing == false
             ? {
-                type: "button",
-                text: {
-                  type: "plain_text",
-                  text: "Opt in to playtest sharing",
-                  emoji: true,
-                },
-                value: "opt-in-to-playtest-sharing",
-                action_id: "opt-in-to-playtest-sharing",
+                type: "actions",
+                elements: [
+                  {
+                    type: "button",
+                    text: {
+                      type: "plain_text",
+                      text: "Opt in to playtest sharing",
+                      emoji: true,
+                    },
+                    value: "opt-in-to-playtest-sharing",
+                    action_id: "opt-in-to-playtest-sharing",
+                  },
+                ],
               }
             : undefined,
         ].filter(Boolean)
