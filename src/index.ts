@@ -13,6 +13,12 @@ interface OmgMoment {
   created_at: string;
   kudos: number;
 }
+interface GalleryEntry {
+  itchurl: string;
+  platforms: string[];
+  gamename: string;
+  thumbnail?: string;
+}
 export const UserStatus = {
   ACTIVE: "ACTIVE",
   PAUSED: "PAUSED",
@@ -275,6 +281,7 @@ async function reUpdateUsersData(db: PrismaClient, id: string) {
     },
   });
 }
+
 slackApp.action(`kudos-menu`, async ({ body, context }) => {
   const value = body.actions[0].value;
   const startIndex = Number(value.split("-")[2]) * 20;
@@ -362,6 +369,112 @@ slackApp.action(`kudos-menu`, async ({ body, context }) => {
     },
   });
 });
+slackApp.action(`juice-gallery`, async ({ body, context }) => {
+  const value = body.actions[0].value;
+  const startIndex = Number(value.split("-")[2]) * 20;
+  let data = await fetch("https://juice.hackclub.com/api/get-gallery")
+    .then((r) => r.json()) as GalleryEntry[];
+  const isLastPage = startIndex + 20 > data.length;
+  const endIndex = isLastPage ? data.length : startIndex + 20;
+  const isFirstPage = startIndex === 0;
+  data = data.slice(startIndex, endIndex);
+  client.views.publish({
+    user_id: body.user.id,
+    view: {
+      type: "home",
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: ":juice-gallery:",
+            emoji: true,
+          },
+        },
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: ":arrow_left:",
+              },
+              action_id: "kudos-menu",
+              value: "gallery-menu-0",
+            },
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "Home page",
+              },
+              action_id: "home",
+              style: "primary",
+            },
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: ":arrow_right:",
+              },
+              action_id: "kudos-menu-next",
+              value: "gallery-menu-0",
+            },
+          ],
+        },
+        {
+          type: "divider",
+        },
+        //@ts-ignore idk the error
+        ...chunkArray(data, 10)
+          .map((dd) => {
+            return [
+              {
+                type: "section",
+                fields: dd.map((d:GalleryEntry) => {
+                  return [d.thumbnail ? {
+                    type: "image",
+                    image_url: d.thumbnail,
+                    alt_text: "Thumbnail of game: "+d.gamename
+                  } : undefined,{
+                    type: "mrkdwn",
+                    text: `*${d.gamename}*\n> <${d.itchurl}|Play Game>\n> Playable on: ${d.platforms.map(e=>`:${e.toLowerCase()}:`).join(" ")}`,
+                  }].filter(Boolean);
+                }).flat(),
+              },
+              {
+                type: "divider",
+              },
+            ];
+          })
+          .flat(),
+      ],
+    },
+  });
+});
+
+
+slackApp.action(`opt-in-to-playtest-sharing`, async ({ body, context, ack }) => {
+ if(ack) ack();
+  const userId = body.user.id;
+  const userEntry = await db.user.findFirst({
+    where: {
+      slackId: userId,
+    },
+  });
+  if (!userEntry) return;
+  await db.user.update({
+    where: {
+      slackId: userId,
+    },
+    data: {
+      opt_in_to_playTestSharing: true,
+    },
+  });
+
+})
+
 slackApp.action(`juice-start`, async ({ body, context }) => {
   console.debug(`#juicemoment0`);
   const userId = body.user.id;
@@ -449,6 +562,7 @@ slackApp.action(`juice-pause`, async ({ body, context }) => {
     // view_id: body.view.id,
   });
 });
+
 slackApp.action(`juice-stop-record`, async ({ body, context }) => {
   console.debug(`#juicemoment2-1`);
   const userId = body.user.id;
@@ -470,7 +584,7 @@ slackApp.action(`juice-stop-record`, async ({ body, context }) => {
   //         token: userEntry.juice_token,
   //         stretchId: userEntry.session_started
   //     })
-  // })
+  // }) 
   // pop up a modal asking for a description and video file upload
   await client.views.open({
     //@ts-ignore idk compile error
@@ -621,6 +735,7 @@ slackApp.action(`juice-stop`, async ({ body, context }) => {
     },
   });
 
+  
   await client.views.publish({
     user_id: body.user.id,
     view: {
@@ -655,7 +770,7 @@ setInterval(() => {
         console.log(response);
         setTimeout(() => {
           //@ts-ignore idk compile error
-          process.exit();
+         Deno.exit(0)
         }, 1000);
       }
     }

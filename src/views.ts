@@ -83,6 +83,16 @@ export const kudos_button = {
       value: "jungle-menu-0",
       action_id: "jungle-menu",
     },
+    {
+      type: "button",
+      text: {
+        type: "plain_text",
+        text: ":juice-gallery:",
+        emoji: true,
+      },
+      value: "gallery-menu-0",
+      action_id: "juice-gallery",
+    }
   ],
 };
 export function genMainView(slackID: string, userEntry: any) {
@@ -201,6 +211,16 @@ export function genMainView(slackID: string, userEntry: any) {
               },
             ],
           },
+          userEntry.opt_in_to_playTestSharing == false ? {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Opt in to playtest sharing",
+              emoji: true,
+            },
+            value: "opt-in-to-playtest-sharing",
+            action_id: "opt-in-to-playtest-sharing",
+          } : undefined
         ].filter(Boolean)
       : login_blocks),
     //@ts-ignore shut up i cant focus

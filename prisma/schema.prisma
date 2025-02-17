@@ -33,4 +33,12 @@ model User {
   jungle_hours            Decimal     @default(0.0)
   totalTokens             Decimal?    @default(0.0)
   slack_handle            String?
+  opt_in_to_playTestSharing Boolean @default(false)
+  playtest_notifications  Boolean @default(false)
+}
+
+model AlreadySentOut {
+  id String @id 
+  userId String
+  sentAt DateTime @default(now())
 }
