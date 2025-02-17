@@ -481,6 +481,10 @@ slackApp.action(
         opt_in_to_playTestSharing: true,
       },
     });
+    // if they have there itchIo game already js send it out lol
+    if(userEntry.itch){
+
+    }
   },
 );
 
@@ -759,15 +763,30 @@ slackApp.action(`juice-stop`, async ({ body, context }) => {
     },
   });
 });
-setInterval(() => {
+Deno.cron(`update ad`,"* * * * *", () => {
   ad_of_the_min = ads[Math.floor(Math.random() * ads.length)];
-}, 1000 * 60);
-setInterval(
-  () => {
-    cronJob(slackApp, db);
-  },
-  1000 * 60 * 5,
-);
+})
+
+Deno.cron(`update all users data over a span of 30s wait`, "0 */6 * * *", async () => {
+const users = await db.user.findMany({})
+for(const user of users){
+  console.debug(`#update-all-users-data-over-a-span-of-30s-wait`, user.slackId)
+  await reUpdateUsersData(db, user.slackId)
+  await new Promise(r => setTimeout(r, 1000 * 30))
+}
+})
+// setInterval(() => {
+//   ad_of_the_min = ads[Math.floor(Math.random() * ads.length)];
+// }, 1000 * 60);
+// setInterval(
+//   () => {
+//     cronJob(slackApp, db);
+//   },
+//   1000 * 60 * 5,
+// );
+Deno.cron(`update lb`,"*/5 * * * *", () => {
+  cronJob(slackApp, db);
+});
 
 setInterval(() => {
   exec(`git pull -v`, (error, stdout) => {
